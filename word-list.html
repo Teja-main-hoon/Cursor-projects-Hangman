@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word List Manager - Hangman</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f7;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #1d1d1f;
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 60px 50px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08), 0 20px 40px rgba(0, 0, 0, 0.04);
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #1d1d1f;
+            margin-bottom: 10px;
+            font-size: 3em;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #86868b;
+            font-size: 1.05em;
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            font-size: 1.05em;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-bottom: 12px;
+            letter-spacing: -0.01em;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.05em;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #1d1d1f;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', 'Monaco', monospace;
+            resize: vertical;
+            min-height: 200px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+        }
+
+        .hint {
+            font-size: 0.95em;
+            color: #86868b;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 14px 32px;
+            font-size: 1.05em;
+            background: #0071e3;
+            color: #ffffff;
+            border: none;
+            border-radius: 980px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button:hover {
+            background: #0077ed;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .secondary-btn {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .secondary-btn:hover {
+            background: #e8e8ed;
+        }
+
+        .success-message {
+            margin-top: 20px;
+            padding: 16px 24px;
+            background: #e6f9ed;
+            color: #1d1d1f;
+            border-radius: 12px;
+            font-size: 1.05em;
+            font-weight: 500;
+            display: none;
+            text-align: center;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .word-count {
+            margin-top: 12px;
+            font-size: 0.95em;
+            color: #86868b;
+            text-align: right;
+        }
+
+        .word-count strong {
+            color: #1d1d1f;
+        }
+
+        .current-words {
+            margin-top: 30px;
+            padding: 24px;
+            background: #f5f5f7;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .current-words.show {
+            display: block;
+        }
+
+        .current-words h2 {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1d1d1f;
+            letter-spacing: -0.01em;
+        }
+
+        .word-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .word-tag {
+            padding: 8px 16px;
+            background: #ffffff;
+            border: 1px solid #d2d2d7;
+            border-radius: 20px;
+            font-size: 0.95em;
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+
+        .nav-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #d2d2d7;
+        }
+
+        .nav-link a {
+            color: #0071e3;
+            text-decoration: none;
+            font-size: 1.05em;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link a:hover {
+            color: #0077ed;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Word List Manager</h1>
+        <p class="subtitle">Enter words that will be used in the Hangman game</p>
+        
+        <div class="input-section">
+            <label for="wordInput">Enter words (one per line or separated by commas):</label>
+            <textarea id="wordInput" placeholder="JAVASCRIPT&#10;PYTHON&#10;COMPUTER&#10;PROGRAMMING"></textarea>
+            <div class="word-count">
+                <span id="wordCount">0</span> <strong>words</strong>
+            </div>
+            <p class="hint">Words will be automatically converted to uppercase. Only letters A-Z are allowed.</p>
+        </div>
+
+        <div class="button-group">
+            <button onclick="saveWords()">Save Words</button>
+            <button class="secondary-btn" onclick="loadDefaultWords()">Load Default</button>
+            <button class="secondary-btn" onclick="clearWords()">Clear All</button>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            Words saved successfully!
+        </div>
+
+        <div class="current-words" id="currentWords">
+            <h2>Current Word List</h2>
+            <div class="word-list" id="wordListDisplay"></div>
+        </div>
+
+        <div class="nav-link">
+            <a href="hangman.html">← Back to Hangman Game</a>
+        </div>
+    </div>
+
+    <script>
+        // Load and display current words on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            loadCurrentWords();
+            updateWordCount();
+            
+            // Update word count as user types
+            document.getElementById('wordInput').addEventListener('input', function() {
+                updateWordCount();
+            });
+        });
+
+        function parseWords(input) {
+            if (!input || !input.trim()) {
+                return [];
+            }
+            
+            // Split by newlines or commas
+            let words = input.split(/[\n,]+/)
+                .map(word => word.trim().toUpperCase())
+                .filter(word => {
+                    // Only allow words with letters A-Z
+                    return word.length > 0 && /^[A-Z]+$/.test(word);
+                });
+            
+            // Remove duplicates
+            return [...new Set(words)];
+        }
+
+        function updateWordCount() {
+            const input = document.getElementById('wordInput').value;
+            const words = parseWords(input);
+            document.getElementById('wordCount').textContent = words.length;
+        }
+
+        function saveWords() {
+            const input = document.getElementById('wordInput').value;
+            const words = parseWords(input);
+            
+            if (words.length === 0) {
+                alert('Please enter at least one valid word (letters A-Z only).');
+                return;
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('hangmanWords', JSON.stringify(words));
+            
+            // Show success message
+            const successMsg = document.getElementById('successMessage');
+            successMsg.textContent = `Successfully saved ${words.length} word${words.length !== 1 ? 's' : ''}!`;
+            successMsg.classList.add('show');
+            
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 3000);
+            
+            // Update current words display
+            loadCurrentWords();
+        }
+
+        function loadCurrentWords() {
+            const savedWords = localStorage.getItem('hangmanWords');
+            if (savedWords) {
+                const words = JSON.parse(savedWords);
+                displayCurrentWords(words);
+                
+                // Also populate the textarea
+                document.getElementById('wordInput').value = words.join('\n');
+                updateWordCount();
+            }
+        }
+
+        function displayCurrentWords(words) {
+            const container = document.getElementById('currentWords');
+            const display = document.getElementById('wordListDisplay');
+            
+            if (words.length === 0) {
+                container.classList.remove('show');
+                return;
+            }
+            
+            container.classList.add('show');
+            display.innerHTML = '';
+            
+            words.forEach(word => {
+                const tag = document.createElement('div');
+                tag.className = 'word-tag';
+                tag.textContent = word;
+                display.appendChild(tag);
+            });
+        }
+
+        function loadDefaultWords() {
+            const defaultWords = [
+                'JAVASCRIPT', 'PYTHON', 'COMPUTER', 'PROGRAMMING', 'ALGORITHM',
+                'DEVELOPER', 'KEYBOARD', 'MONITOR', 'SOFTWARE', 'HARDWARE',
+                'INTERNET', 'BROWSER', 'WEBSITE', 'APPLICATION', 'DATABASE',
+                'FUNCTION', 'VARIABLE', 'CONSTANT', 'ARRAY', 'OBJECT'
+            ];
+            
+            document.getElementById('wordInput').value = defaultWords.join('\n');
+            updateWordCount();
+        }
+
+        function clearWords() {
+            if (confirm('Are you sure you want to clear all words? This will remove the saved word list.')) {
+                document.getElementById('wordInput').value = '';
+                localStorage.removeItem('hangmanWords');
+                document.getElementById('currentWords').classList.remove('show');
+                updateWordCount();
+            }
+        }
+
+        // Load words when page loads
+        loadCurrentWords();
+    </script>
+</body>
+</html>
+
